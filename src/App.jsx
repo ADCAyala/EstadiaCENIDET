@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { parse, SymbolNode } from 'mathjs/number';
 
 function App() {
-  // Estado para la expresión algebraica ingresada por el usuario
+
   const [expression, setExpression] = useState('Tan(Acos(Divide(Norm(Csc(v)), Csch(S))))');
-  // Estado para almacenar las variables detectadas dinámicamente y sus rangos
+
   const [detectedVariables, setDetectedVariables] = useState([]);
-  // Estado para capturar errores de sintaxis matemática
+
   const [error, setError] = useState('');
 
-  // Efecto que se dispara cada vez que cambia la expresión para ejecutar el Parser
+
   useEffect(() => {
     try {
       setError('');
@@ -18,10 +18,10 @@ function App() {
         return;
       }
 
-      // 1. Math.js analiza la cadena y genera el Árbol de Sintaxis Abstracta (AST)
+
       const node = parse(expression);
       
-      // 2. Filtramos el árbol para encontrar todos los nodos que sean símbolos (letras/variables)
+
       const symbols = [];
       node.traverse((childNode) => {
         if (childNode.isSymbolNode && !childNode.isPointer) {
@@ -36,17 +36,16 @@ function App() {
         }
       });
 
-      // 3. Mapeamos las variables encontradas asignándoles el rango automático de -100 a 100
+
       const updatedVars = symbols.map(varName => {
-        // Si la variable ya existía antes, conservamos sus valores actuales
         const existingVar = detectedVariables.find(v => v.name === varName);
         return existingVar ? existingVar : { name: varName, min: -100, max: 100 };
       });
 
       setDetectedVariables(updatedVars);
     } catch (err) {
-      // Si el usuario escribe algo inválido a medias, guardamos el error para avisarle en la interfaz
-      setError('Error de sintaxis: Estructura matemática no reconocida todavía.');
+
+      setError('Error de sintaxis: Estructura matemática no reconocida.');
     }
   }, [expression]);
 
