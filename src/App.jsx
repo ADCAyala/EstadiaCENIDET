@@ -4,13 +4,27 @@ import Plot from 'react-plotly.js';
 
 function App() {
 
-  const [expression, setExpression] = useState('Tan(Acos(Divide(Norm(Csc(v)), Csch(S))))');
+  const [expression, setExpression] = useState('sin(x) + cos(y) + sin(z)'); 
 
   const [detectedVariables, setDetectedVariables] = useState([]);
 
   const [error, setError] = useState('');
 
   const [plotData, setPlotData] = useState([]);
+
+  //Diccionario de funciones
+  const cenidetMathScope = {
+    add: (a, b) => a + b,
+    sub: (a, b) => a - b,
+    mul: (a, b) => a * b,
+    div: (a, b) => a / b,
+    Add: (a, b) => a + b,
+    Sub: (a, b) => a - b,
+    Mul: (a, b) => a * b,
+    Div: (a, b) => a / b,
+    Divide: (a, b) => a / b,
+    Norm: (a) => Math.abs(a)
+  };
 
   useEffect(() => {
     try {
@@ -44,25 +58,44 @@ function App() {
 
       const updatedVars = symbols.map(varName => {
         const existingVar = detectedVariables.find(v => v.name === varName);
-        return existingVar ? existingVar : { name: varName, min: -100, max: 100 };
+        return existingVar ? existingVar : { 
+          name: varName, 
+          isConstant: false, // Por defecto todas inician como rango variable
+          min: '-10', 
+          max: '10',
+          constantValue: '5' // Valor constante inicial por defecto
+        };
       });
       setDetectedVariables(updatedVars);
 
+      // Separamos cuáles variables actúan como ejes activos y cuáles como constantes fijas
+      const activeAxes = updatedVars.filter(v => !v.isConstant);
+      const constantFields = updatedVars.filter(v => v.isConstant);
+
+      // Construimos el entorno base inyectando primero los valores de las constantes fijas
+      const baseScope = { ...cenidetMathScope };
+      constantFields.forEach(c => {
+        baseScope[c.name] = c.constantValue === '' || c.constantValue === '-' ? 0 : Number(c.constantValue);
+      });
+
+
       //Generacion de puntos para la grafica
-      if (updatedVars.length === 1) {
-        // --- RENDERING 2D ---
-        const v1 = updatedVars[0];
+      if (activeAxes.length === 1) {
+        // RENDERING 2D
+        const v1 = activeAxes[0];
+        const minVal = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
+        const maxVal = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
+
         const xValues = [];
         const yValues = [];
-        const steps = 100; // Cantidad de puntos en la curva
-        const stepSize = (v1.max - v1.min) / steps;
+        const steps = 100;
+        const stepSize = (maxVal - minVal) / steps;
 
         for (let i = 0; i <= steps; i++) {
-          const val = v1.min + (i * stepSize);
-          xValues.push(val);
+          const currentVal = minVal + (i * stepSize);
+          xValues.push(currentVal);
           
-          // Creamos el entorno con el valor actual de la variable
-          const scope = { [v1.name]: val };
+          const scope = { ...baseScope, [v1.name]: currentVal };
           yValues.push(compiled.evaluate(scope));
         }
 
@@ -72,33 +105,36 @@ function App() {
             y: yValues,
             type: 'scatter',
             mode: 'lines',
-            line: { color: '#1B396A', width: 3 },
-            name: expression
+            line: { color: '#7c2222', width: 3 }
           }
         ]);
 
-      } else if (updatedVars.length === 2) {
-        // --- RENDERING 3D (Superficie) ---
-        const v1 = updatedVars[0]; // Ej. 'x'
-        const v2 = updatedVars[1]; // Ej. 'y'
+      } else if (activeAxes.length === 2) {
+        // RENDERING 3D (Superficie)
+        const v1 = activeAxes[0];
+        const v2 = activeAxes[1];
         
+        const minX = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
+        const maxX = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
+        const minY = v2.min === '' || v2.min === '-' ? -10 : Number(v2.min);
+        const maxY = v2.max === '' || v2.max === '-' ? 10 : Number(v2.max);
+
         const xValues = [];
         const yValues = [];
-        const zValues = []; // Matriz bidimensional para las alturas
+        const zValues = [];
         
-        const steps = 30; // Resolución de la malla 3D (ajustada para rendimiento móvil)
-        const stepX = (v1.max - v1.min) / steps;
-        const stepY = (v2.max - v2.min) / steps;
+        const steps = 30;
+        const stepX = (maxX - minX) / steps;
+        const stepY = (maxY - minY) / steps;
 
-        // Generamos los vectores de los ejes
-        for (let i = 0; i <= steps; i++) xValues.push(v1.min + (i * stepX));
-        for (let j = 0; j <= steps; j++) yValues.push(v2.min + (j * stepY));
+        for (let i = 0; i <= steps; i++) xValues.push(minX + (i * stepX));
+        for (let j = 0; j <= steps; j++) yValues.push(minY + (j * stepY));
 
-        // Calculamos la malla Z
         for (let j = 0; j <= steps; j++) {
           const row = [];
           for (let i = 0; i <= steps; i++) {
             const scope = {
+              ...baseScope,
               [v1.name]: xValues[i],
               [v2.name]: yValues[j]
             };
@@ -107,18 +143,18 @@ function App() {
           zValues.push(row);
         }
 
-        setPlotData([
+       setPlotData([
           {
             x: xValues,
             y: yValues,
             z: zValues,
             type: 'surface',
-            colorscale: 'Hot',
+            colorscale: 'Viridis',
             showscale: false
           }
         ]);
       } else {
-        // Si hay 0 o más de 2 variables, limpiamos la gráfica momentáneamente
+        // Si hay más de 2 ejes activos o ninguno, limpiamos el lienzo para mostrar advertencia
         setPlotData([]);
       }
 
@@ -129,9 +165,14 @@ function App() {
     }
   }, [expression, JSON.stringify(detectedVariables)]); // Dependencias: expresión y variables detectadas
 
-  const handleRangeChange = (name, field, value) => {
+  const handleVariableChange = (name, field, value) => {
     setDetectedVariables(prev =>
-      prev.map(v => v.name === name ? { ...v, [field]: Number(value) } : v)
+      prev.map(v => v.name === name ? { ...v, [field]: value } : v)
+    );
+  };
+  const toggleVariableMode = (name) => {
+    setDetectedVariables(prev =>
+      prev.map(v => v.name === name ? { ...v, isConstant: !v.isConstant } : v)
     );
   };
 
@@ -142,78 +183,112 @@ function App() {
 
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ borderBottom: '20px solid #1B396A', paddingBottom: '10px', marginBottom: '20px' }}>
-        <h1 style={{ color: 'white' }}>Prototipo de GenMath - CENIDET</h1>
-        <p style={{ color: '#666' }}>Avance de Estadía</p>
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', maxWidth: '1150px', margin: '0 auto' }}>
+      <header style={{ borderBottom: '4px solid #1B396A', paddingBottom: '10px', marginBottom: '20px' }}>
+        <h1 style={{ color: '#333', margin: 0 }}>GenMath PWA - CENIDET</h1>
+        <p style={{ color: '#666', margin: '5px 0 0 0' }}>Avance</p>
       </header>
 
       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
         
-        {/* PANEL IZQUIERDO: FORMULARIOS E INPUTS */}
-        <div style={{ flex: '1', minWidth: '300px', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+        {/* PANEL IZQUIERDO: CONTROLES */}
+        <div style={{ flex: '1', minWidth: '320px', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
           <h3 style={{ marginTop: 0, color: '#1B396A' }}>Configuración</h3>
           
-          {/* Cuadro de inserción de función */}
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>
-              Ingrese la Función a evaluar:
+            <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>
+              Expresión del Algoritmo:
             </label>
             <input
               type="text"
               value={expression}
               onChange={(e) => setExpression(e.target.value)}
-              style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ced4da',boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '10px', fontSize: '16px', borderRadius: '4px', border: '1px solid #ced4da', boxSizing: 'border-box' }}
               placeholder="Ej. add(div(1, x), mul(3, y))"
             />
             {error && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px', fontWeight: 'bold' }}>{error}</p>}
           </div>
 
-          {/* Formulario de Variables y Rangos */}
           <div>
-            <h4>Dominio</h4>
+            <h4 style={{ marginBottom: '10px' }}>Mapeo Dinámico de Variables</h4>
             {detectedVariables.length === 0 ? (
-              <p style={{ color: '#6c757d', fontStyle: 'italic' }}>Escriba variables independientes (ej. x, y) para configurar sus límites.</p>
+              <p style={{ color: '#6c757d', fontStyle: 'italic' }}>Introduzca una función.</p>
             ) : (
               detectedVariables.map((variable) => (
-                <div key={variable.name} style={{ background: '#fff', padding: '15px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 'bold' }}>Variable independiente: <span style={{ color: '#1B396A', fontSize: '18px' }}>{variable.name}</span></span>
-                  <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '11px', textTransform: 'uppercase', color: '#495057' }}>Mínimo:</label>
-                      <input
-                        type="number"
-                        value={variable.min}
-                        onChange={(e) => handleRangeChange(variable.name, 'min', e.target.value)}
-                        style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ fontSize: '11px', textTransform: 'uppercase', color: '#495057' }}>Máximo:</label>
-                      <input
-                        type="number"
-                        value={variable.max}
-                        onChange={(e) => handleRangeChange(variable.name, 'max', e.target.value)}
-                        style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                      />
-                    </div>
+                <div key={variable.name} style={{ background: '#fff', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
+                  <div style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span>Variable: <span style={{ color: '#1B396A', fontSize: '18px', fontWeight: 'bold' }}>{variable.name}</span></span>
+                    
+                    {/* Botón Switch para alternar el Modo de Usabilidad */}
+                    <button 
+                      onClick={() => toggleVariableMode(variable.name)}
+                      style={{ 
+                        padding: '4px 8px', 
+                        fontSize: '11px', 
+                        textTransform: 'uppercase', 
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        border: '1px solid',
+                        backgroundColor: variable.isConstant ? '#6c757d' : '#248165',
+                        color: '#fff'
+                      }}
+                    >
+                      {variable.isConstant ? 'Valor Constante' : 'Valor Gráfico'}
+                    </button>
                   </div>
+
+                  {/* Renderizado condicional según el modo seleccionado */}
+                  {variable.isConstant ? (
+                    <div>
+                      <label style={{ fontSize: '11px', color: '#495057', display: 'block', marginBottom: '4px' }}>Asignar Valor Constante Fijo:</label>
+                      <input
+                        type="text"
+                        value={variable.constantValue}
+                        onChange={(e) => handleVariableChange(variable.name, 'constantValue', e.target.value)}
+                        style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
+                        placeholder="Ej. 5"
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '11px', color: '#495057' }}>Mínimo:</label>
+                        <input
+                          type="text"
+                          value={variable.min}
+                          onChange={(e) => handleVariableChange(variable.name, 'min', e.target.value)}
+                          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ fontSize: '11px', color: '#495057' }}>Máximo:</label>
+                        <input
+                          type="text"
+                          value={variable.max}
+                          onChange={(e) => handleVariableChange(variable.name, 'max', e.target.value)}
+                          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
         </div>
 
-        {/* PANEL DERECHO: CONTENEDOR DE LA GRÁFICA (PLACEHOLDER) */}
+        {/* PANEL DERECHO: LIENZO GRÁFICO */}
         <div style={{ flex: '1.5', minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           
-          <div style={{ background: '#e9ecef', padding: '12px 20px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '16px', borderLeft: '5px solid #1B396A' }}>
-            <strong>f({detectedVariables.map(v => v.name).join(', ') || '...'}) = </strong> {expression || 'Ø'}
+          <div style={{ background: '#e9ecef', padding: '12px 20px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '15px', borderLeft: '5px solid #1B396A' }}>
+            <strong>Ejes Activos:</strong> {detectedVariables.filter(v=>!v.isConstant).map(v=>v.name).join(', ') || 'Ninguno'} <br />
+            <strong>Constantes fijadas:</strong> {detectedVariables.filter(v=>v.isConstant).map(v=>`${v.name}=${v.constantValue || 0}`).join(', ') || 'Ninguna'}
           </div>
 
           <div style={{ 
             width: '100%', 
-            minHeight: '450px', 
+            minHeight: '460px', 
             background: '#ffffff', 
             borderRadius: '8px', 
             border: '1px solid #dee2e6',
@@ -227,24 +302,24 @@ function App() {
                 data={plotData}
                 layout={{
                   autosize: true,
-                  width: 600,
-                  height: 440,
+                  width: 620,
+                  height: 450,
                   margin: { l: 40, r: 40, b: 40, t: 20 },
                   scene: {
-                    xaxis: { title: detectedVariables[0]?.name || 'X' },
-                    yaxis: { title: detectedVariables[1]?.name || 'Y' },
-                    zaxis: { title: 'F(X,Y)' }
+                    xaxis: { title: detectedVariables.filter(v=>!v.isConstant)[0]?.name || 'X' },
+                    yaxis: { title: detectedVariables.filter(v=>!v.isConstant)[1]?.name || 'Y' },
+                    zaxis: { title: 'F(X)' }
                   }
                 }}
                 config={{ responsive: true, displayModeBar: true }}
               />
             ) : (
               <div style={{ textAlign: 'center', color: '#6c757d', padding: '20px' }}>
-                <p style={{ fontSize: '18px', fontWeight: 'bold' }}> Visualización no disponible</p>
-                <p style={{ fontSize: '14px' }}>
-                  {detectedVariables.length > 2 
-                    ? 'Demasiadas variables, solucion en progreso...' 
-                    : 'Ingrese una expresión válida para inicializar el renderizado.'}
+                <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#1B396A' }}> Control Dimensional Requerido</p>
+                <p style={{ fontSize: '14px', maxWidth: '400px', margin: '10px auto' }}>
+                  El motor solo puede graficar un máximo de 2 ejes variables de manera simultánea. 
+                  <br /><br />
+                  Por favor, cambie el modo a <strong>"📍 Constante"</strong> en las variables excedentes para poder proyectar la sección de la gráfica.
                 </p>
               </div>
             )}
