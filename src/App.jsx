@@ -259,73 +259,56 @@ function App() {
           </div>
 
           <div>
-            <h4 style={{ marginBottom: '10px' }}>Mapeo Dinámico de Variables</h4>
-            {detectedVariables.length === 0 ? (
-              <p style={{ color: '#6c757d', fontStyle: 'italic' }}>Introduzca una función.</p>
-            ) : (
-              detectedVariables.map((variable) => (
-                <div key={variable.name} style={{ background: '#fff', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span>Variable: <span style={{ color: '#1B396A', fontSize: '18px', fontWeight: 'bold' }}>{variable.name}</span></span>
-                    
-                    <button 
-                      onClick={() => toggleVariableMode(variable.name)}
-                      style={{ 
-                        padding: '4px 8px', 
-                        fontSize: '11px', 
-                        textTransform: 'uppercase', 
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        borderRadius: '4px',
-                        border: '1px solid',
-                        backgroundColor: variable.isConstant ? '#6c757d' : '#248165',
-                        color: '#fff'
-                      }}
-                    >
-                      {variable.isConstant ? 'Valor Constante' : 'Valor Gráfico'}
-                    </button>
-                  </div>
-
-                  {/* Renderizado condicional según el modo seleccionado */}
-                  {variable.isConstant ? (
-                    <div>
-                      <label style={{ fontSize: '11px', color: '#495057', display: 'block', marginBottom: '4px' }}>Asignar Valor Constante Fijo:</label>
-                      <input
-                        type="text"
-                        value={variable.constantValue}
-                        onChange={(e) => handleVariableChange(variable.name, 'constantValue', e.target.value)}
-                        style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                        placeholder="Ej. 5"
-                      />
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: '11px', color: '#495057' }}>Mínimo:</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={variable.min}
-                          onChange={(e) => handleVariableChange(variable.name, 'min', e.target.value)}
-                          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <label style={{ fontSize: '11px', color: '#495057' }}>Máximo:</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={variable.max}
-                          onChange={(e) => handleVariableChange(variable.name, 'max', e.target.value)}
-                          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
+<h4 style={{ marginBottom: '10px' }}>Mapeo Dinámico de Variables</h4>
+{detectedVariables.length === 0 ? (
+  <p style={{ color: '#6c757d', fontStyle: 'italic' }}>Introduzca una función.</p>
+) : (
+  <>
+    {/* PRIMERO: Variables en Modo Gráfico */}
+    {detectedVariables.filter(v => !v.isConstant).map((variable) => (
+      <div key={variable.name} style={{ background: '#fff', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span>Variable: <span style={{ color: '#1B396A', fontSize: '18px', fontWeight: 'bold' }}>{variable.name}</span></span>
+          <button 
+            onClick={() => toggleVariableMode(variable.name)}
+            style={{ padding: '4px 8px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px', border: '1px solid', backgroundColor: '#248165', color: '#fff' }}
+          >
+            Valor Gráfico
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '11px', color: '#495057' }}>Mínimo:</label>
+            <input type="number" step="1" value={variable.min} onChange={(e) => handleVariableChange(variable.name, 'min', e.target.value)} style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }} />
           </div>
+          <div style={{ flex: 1 }}>
+            <label style={{ fontSize: '11px', color: '#495057' }}>Máximo:</label>
+            <input type="number" step="1" value={variable.max} onChange={(e) => handleVariableChange(variable.name, 'max', e.target.value)} style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }} />
+          </div>
+        </div>
+      </div>
+    ))}
+
+    {/* SEGUNDO: Variables en Modo Constante */}
+    {detectedVariables.filter(v => v.isConstant).map((variable) => (
+      <div key={variable.name} style={{ background: '#fff', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span>Variable: <span style={{ color: '#1B396A', fontSize: '18px', fontWeight: 'bold' }}>{variable.name}</span></span>
+          <button 
+            onClick={() => toggleVariableMode(variable.name)}
+            style={{ padding: '4px 8px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px', border: '1px solid', backgroundColor: '#6c757d', color: '#fff' }}
+          >
+            Valor Constante
+          </button>
+        </div>
+        <div>
+          <label style={{ fontSize: '11px', color: '#495057', display: 'block', marginBottom: '4px' }}>Asignar Valor Constante Fijo:</label>
+          <input type="text" value={variable.constantValue} onChange={(e) => handleVariableChange(variable.name, 'constantValue', e.target.value)} style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }} placeholder="Ej. 5" />
+        </div>
+      </div>
+    ))}
+  </>
+)}</div>
         </div>
 
         {/* PANEL DERECHO: LIENZO GRÁFICO */}
