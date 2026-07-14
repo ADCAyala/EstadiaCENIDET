@@ -26,12 +26,18 @@ function App() {
     sub: (a, b) => a - b,
     mul: (a, b) => a * b,
     div: (a, b) => a / b,
+    sqrt: (a) => Math.sqrt(a),
+    min: (a, b) => Math.min(a, b),
+    max: (a, b) => Math.max(a, b),
     Add: (a, b) => a + b,
     Sub: (a, b) => a - b,
     Mul: (a, b) => a * b,
     Div: (a, b) => a / b,
     Divide: (a, b) => a / b,
-    Norm: (a) => Math.abs(a)
+    Norm: (a) => Math.abs(a),
+    Sqrt: (a) => Math.sqrt(a),
+    MIN: (a, b) => Math.min(a, b),
+    MAX: (a, b) => Math.max(a, b)
   };
 
   const handleProcessGraph = (varsToUse = null) => {
@@ -314,10 +320,10 @@ function App() {
         {/* PANEL DERECHO: LIENZO GRÁFICO */}
         <div style={{ flex: '1.5', minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
           
-          <div style={{ background: '#e9ecef', padding: '12px 20px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '15px', borderLeft: '5px solid #1B396A' }}>
-            <strong>Ejes Activos:</strong> {detectedVariables.filter(v=>!v.isConstant).map(v=>v.name).join(', ') || 'Ninguno'} <br />
-            <strong>Constantes fijadas:</strong> {detectedVariables.filter(v=>v.isConstant).map(v=>`${v.name}=${v.constantValue || 0}`).join(', ') || 'Ninguna'}
-          </div>
+<div style={{ background: '#e9ecef', padding: '12px 20px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '15px', borderLeft: '5px solid #1B396A' }}>
+  <strong>Función Algebraica:</strong> f = {expression || 'Sin expresión'} <br />
+  <strong>Ejes Proyectados:</strong> {detectedVariables.filter(v => !v.isConstant).map(v => v.name).join(', ') || 'Ninguno'}
+</div>
 
           <div style={{ 
             width: '100%', 
