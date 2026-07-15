@@ -31,5 +31,12 @@ export default defineConfig({
       }
     })
 
-  ]
+  ],
+  server: {
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      'glowing-sterilize-upchuck.ngrok-free.dev' // 👈 Registramos el host del túnel directamente
+    ]
+  }
 })

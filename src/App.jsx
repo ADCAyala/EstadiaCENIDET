@@ -100,8 +100,10 @@ function App() {
       // GENERACIÓN DE PUNTOS
       if (activeAxes.length === 1) {
         const v1 = activeAxes[0];
-        const minVal = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
-        const maxVal = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
+const rawMin = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
+const rawMax = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
+const minVal = Math.min(rawMin, rawMax); // Asegura el menor
+const maxVal = Math.max(rawMin, rawMax); // Asegura el mayor
 
         const xValues = [];
         const yValues = [];
@@ -129,10 +131,14 @@ function App() {
         const v1 = activeAxes[0];
         const v2 = activeAxes[1];
         
-        const minX = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
-        const maxX = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
-        const minY = v2.min === '' || v2.min === '-' ? -10 : Number(v2.min);
-        const maxY = v2.max === '' || v2.max === '-' ? 10 : Number(v2.max);
+const rawMinX = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
+const rawMaxX = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
+const minX = Math.min(rawMinX, rawMaxX);
+const maxX = Math.max(rawMinX, rawMaxX);
+const rawMinY = v2.min === '' || v2.min === '-' ? -10 : Number(v2.min);
+const rawMaxY = v2.max === '' || v2.max === '-' ? 10 : Number(v2.max);
+const minY = Math.min(rawMinY, rawMaxY);
+const maxY = Math.max(rawMinY, rawMaxY);
 
         const xValues = [];
         const yValues = [];
