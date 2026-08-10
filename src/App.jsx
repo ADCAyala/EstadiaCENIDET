@@ -242,10 +242,10 @@ const maxY = Math.max(rawMinY, rawMaxY);
         <p style={{ color: '#666', margin: '5px 0 0 0' }}>Avance</p>
       </header>
 
-      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap',flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
         
         {/* PANEL IZQUIERDO: CONTROLES */}
-        <div style={{ flex: '1', minWidth: '320px', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+        <div style={{ flex: '1', minWidth: '320px', background: '#f8f9fa', padding: '20px', borderRadius: '8px', border: '1px solid #e9ecef', order: (window.innerWidth <= 768 && plotData.length > 0) ? 3 : 1}}>
           <h3 style={{ marginTop: 0, color: '#1B396A' }}>Configuración</h3>
           
           <div style={{ marginBottom: '20px' }}>
@@ -324,13 +324,15 @@ const maxY = Math.max(rawMinY, rawMaxY);
         </div>
 
         {/* PANEL DERECHO: LIENZO GRÁFICO */}
-        <div style={{ flex: '1.5', minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          
+        <div style={{ flex: '1.5', minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '15px',order: (window.innerWidth <= 768 && plotData.length > 0) ? 2 : 2 }}>
+
+  {/* Caja informativa de la función */}        
 <div style={{ background: '#e9ecef', padding: '12px 20px', borderRadius: '6px', fontFamily: 'monospace', fontSize: '15px', borderLeft: '5px solid #1B396A' }}>
   <strong>Función Algebraica:</strong> f = {expression || 'Sin expresión'} <br />
   <strong>Ejes Proyectados:</strong> {detectedVariables.filter(v => !v.isConstant).map(v => v.name).join(', ') || 'Ninguno'}
 </div>
 
+{/* Contenedor adaptado del Lienzo */}
           <div style={{ 
             width: '100%', 
             minHeight: '460px', 
@@ -347,8 +349,8 @@ const maxY = Math.max(rawMinY, rawMaxY);
                 data={plotData}
                 layout={{
                   autosize: true,
-                  width: 620,
-                  height: 450,
+                  width: window.innerWidth <= 768 ? window.innerWidth - 60 : 620,
+                  height: window.innerWidth <= 768 ? 360 : 450,
                   margin: { l: 40, r: 40, b: 40, t: 20 },
                   scene: {
                     xaxis: { title: detectedVariables.filter(v=>!v.isConstant)[0]?.name || 'Eje X' },
@@ -374,60 +376,59 @@ const maxY = Math.max(rawMinY, rawMaxY);
 
       </div>
 
-      {/* 1. MODAL OPCIONES INITIAL: MUCHAS VARIABLES */}
-      {showModalOptions && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '450px', width: '100%', borderTop: '5px solid #1B396A' }}>
-            <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.4' }}>Tienes muchas variables y no es posible graficar de esta manera. ¿Desea modificar el valor de alguna variable?</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
-              <button onClick={() => { setShowModalOptions(false); handleProcessGraph(detectedVariables); }} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>No</button>
-              <button onClick={handleOpenFormModal} style={{ padding: '8px 16px', backgroundColor: '#1B396A', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Sí</button>
-            </div>
-          </div>
-        </div>
-      )}
+{/* 1. MODAL OPCIONES INITIAL: MUCHAS VARIABLES */}
+{showModalOptions && (
+  <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '15px', boxSizing: 'border-box' }}>
+    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '400px', width: '90%', borderTop: '5px solid #1B396A', boxSizing: 'border-box' }}>
+      <p style={{ fontSize: '15px', color: '#333', lineHeight: '1.4', margin: 0 }}>Tienes muchas variables y no es posible graficar de esta manera. ¿Desea modificar el valor de alguna variable?</p>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+        <button onClick={() => { setShowModalOptions(false); handleProcessGraph(detectedVariables); }} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>No</button>
+        <button onClick={handleOpenFormModal} style={{ padding: '8px 16px', backgroundColor: '#1B396A', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Sí</button>
+      </div>
+    </div>
+  </div>
+)}
 
-      {/* 2. MODAL FORMULARIO DE EDICIÓN TEMPORAL */}
-      {showModalForm && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1001, padding: '15px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '500px', width: '100%', maxHeight: '85vh', overflowY: 'auto', borderTop: '5px solid #1B396A' }}>
-            <h3 style={{ marginTop: 0, color: '#1B396A' }}>Configuración Temporal de Variables</h3>
-            <div style={{ margin: '15px 0' }}>
-              {tempVariables.map((variable) => (
-                <div key={variable.name} style={{ background: '#f8f9fa', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span>Variable: <span style={{ color: '#1B396A', fontSize: '16px', fontWeight: 'bold' }}>{variable.name}</span></span>
-                    <button 
-                      onClick={() => toggleTempVariableMode(variable.name)}
-                      style={{ padding: '4px 8px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px', border: 'none', backgroundColor: variable.isConstant ? '#6c757d' : '#248165', color: '#fff' }}
-                    >
-                      {variable.isConstant ? 'Valor Constante' : 'Valor Gráfico'}
-                    </button>
-                  </div>
-                  {variable.isConstant ? (
-                    <input
-                      type="text"
-                      value={variable.constantValue}
-                      onChange={(e) => handleTempVariableChange(variable.name, 'constantValue', e.target.value)}
-                      style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-                    />
-                  ) : (
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <input type="number" step="1" value={variable.min} onChange={(e) => handleTempVariableChange(variable.name, 'min', e.target.value)} style={{ width: '100%', padding: '6px' }} />
-                      <input type="number" step="1" value={variable.max} onChange={(e) => handleTempVariableChange(variable.name, 'max', e.target.value)} style={{ width: '100%', padding: '6px' }} />
-                    </div>
-                  )}
-                </div>
-              ))}
+{/* 2. MODAL FORMULARIO DE EDICIÓN TEMPORAL */}
+{showModalForm && (
+  <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1001, padding: '15px', boxSizing: 'border-box' }}>
+    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '8px', maxWidth: '440px', width: '90%', maxHeight: '80vh', overflowY: 'auto', borderTop: '5px solid #1B396A', boxSizing: 'border-box' }}>
+      <h3 style={{ marginTop: 0, color: '#1B396A', fontSize: '18px' }}>Configuración Temporal de Variables</h3>
+      <div style={{ margin: '15px 0' }}>
+        {tempVariables.map((variable) => (
+          <div key={variable.name} style={{ background: '#f8f9fa', padding: '12px', borderRadius: '6px', marginBottom: '12px', border: '1px solid #dee2e6', boxSizing: 'border-box' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>Variable: <span style={{ color: '#1B396A', fontSize: '16px', fontWeight: 'bold' }}>{variable.name}</span></span>
+              <button 
+                onClick={() => toggleTempVariableMode(variable.name)}
+                style={{ padding: '4px 8px', fontSize: '11px', textTransform: 'uppercase', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px', border: 'none', backgroundColor: variable.isConstant ? '#6c757d' : '#248165', color: '#fff' }}
+              >
+                {variable.isConstant ? 'Valor Constante' : 'Valor Gráfico'}
+              </button>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={handleCancelFormModal} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Cancelar</button>
-              <button onClick={handleAcceptFormModal} style={{ padding: '8px 16px', backgroundColor: '#1B396A', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Aceptar</button>
-            </div>
+            {variable.isConstant ? (
+              <input
+                type="text"
+                value={variable.constantValue}
+                onChange={(e) => handleTempVariableChange(variable.name, 'constantValue', e.target.value)}
+                style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
+              />
+            ) : (
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input type="number" step="1" value={variable.min} onChange={(e) => handleTempVariableChange(variable.name, 'min', e.target.value)} style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }} />
+                <input type="number" step="1" value={variable.max} onChange={(e) => handleTempVariableChange(variable.name, 'max', e.target.value)} style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }} />
+              </div>
+            )}
           </div>
-        </div>
-      )}
-
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <button onClick={handleCancelFormModal} style={{ padding: '8px 16px', backgroundColor: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Cancelar</button>
+        <button onClick={handleAcceptFormModal} style={{ padding: '8px 16px', backgroundColor: '#1B396A', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>Aceptar</button>
+      </div>
+    </div>
+  </div>
+)}
       {/* 3. MODAL CONFIRMACIÓN DE CANCELAR */}
       {showModalConfirmCancel && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1002, padding: '15px' }}>

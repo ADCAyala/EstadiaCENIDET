@@ -2,13 +2,16 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA }  from 'vite-plugin-pwa'
 
-// https://vite.dev/config/
+
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico','apple-touch-icon.png','mask-icon.svg'],
+      workbox: {
+    maximumFileSizeToCacheInBytes: 6 * 1024 * 1024
+  },
       manifest:{
         name: 'GenMath',
         description: 'visualizador e interprete portatil de funciones analíticas evolutivas',
@@ -30,13 +33,12 @@ export default defineConfig({
         ]
       }
     })
-
   ],
   server: {
     allowedHosts: [
       'localhost',
       '127.0.0.1',
-      'glowing-sterilize-upchuck.ngrok-free.dev' // 👈 Registramos el host del túnel directamente
+      'glowing-sterilize-upchuck.ngrok-free.dev' 
     ]
   }
 })
