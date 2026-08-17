@@ -27,26 +27,58 @@ function App() {
   const [tempVariables, setTempVariables] = useState([]);
 
   // Diccionario de funciones
-  const cenidetMathScope = {
+   const cenidetMathScope = {
+    // Funciones básicas
     add: (a, b) => a + b,
     sub: (a, b) => a - b,
     mul: (a, b) => a * b,
-    div: (a, b) => a / b,
-    sqrt: (a) => Math.sqrt(a),
-    min: (a, b) => Math.min(a, b),
-    max: (a, b) => Math.max(a, b),
+    div: (a, b) => Math.abs(b) < 1e-12 ? null : a / b,
+    divide: (a, b) => Math.abs(b) < 1e-12 ? null : a / b,
     Add: (a, b) => a + b,
     Sub: (a, b) => a - b,
     Mul: (a, b) => a * b,
-    Div: (a, b) => a / b,
-    Divide: (a, b) => a / b,
+    Div: (a, b) => Math.abs(b) < 1e-12 ? null : a / b,
+    Divide: (a, b) => Math.abs(b) < 1e-12 ? null : a / b,
+    norm: (a) => Math.abs(a),
     Norm: (a) => Math.abs(a),
-    Sqrt: (a) => Math.sqrt(a),
+    // Potencias y raíces
+    sqrt: (a) => a < 0 ? null : Math.sqrt(a),
+    Sqrt: (a) => a < 0 ? null : Math.sqrt(a),
+    sqr: (a) => a * a,
+    Sqr: (a) => a * a,
+    square: (a) => a * a,
+    Square: (a) => a * a,
+    // Logaritmos
+    log: (a) => a <= 0 ? null : Math.log(a),
+    Log: (a) => a <= 0 ? null : Math.log(a),
+    // Extremos y trigonométricas
+    min: (a, b) => Math.min(a, b),
+    max: (a, b) => Math.max(a, b),
     MIN: (a, b) => Math.min(a, b),
-    MAX: (a, b) => Math.max(a, b)
+    MAX: (a, b) => Math.max(a, b),
+    minimum: (a, b) => Math.min(a, b),
+    Minimum: (a, b) => Math.min(a, b),
+    maximum: (a, b) => Math.max(a, b),
+    Maximum: (a, b) => Math.max(a, b),
+    Sin: (a) => Math.sin(a),
+    Sen: (a) => Math.sin(a),
+    sen: (a) => Math.sin(a),
+    Cos: (a) => Math.cos(a),
+    Tan: (a) => Math.tan(a),
+    Acos: (a) => (a < -1 || a > 1) ? null : Math.acos(a),
+    Asin: (a) => (a < -1 || a > 1) ? null : Math.asin(a),
+    Atan: (a) => Math.atan(a),
+    Csc: (a) => { const s = Math.sin(a); return Math.abs(s) < 1e-12 ? null : 1 / s; },
+    csc: (a) => { const s = Math.sin(a); return Math.abs(s) < 1e-12 ? null : 1 / s; },
+    Csch: (a) => { const s = Math.sinh(a); return Math.abs(s) < 1e-12 ? null : 1 / s; },
+    csch: (a) => { const s = Math.sinh(a); return Math.abs(s) < 1e-12 ? null : 1 / s; },
+    Sinh: (a) => Math.sinh(a),
+    Cosh: (a) => Math.cosh(a),
+    Tanh: (a) => Math.tanh(a),
+    Exp: (a) => Math.exp(a)
   };
 
-  const handleProcessGraph = (varsToUse = null) => {
+const handleProcessGraph = (varsToUse = null) => {
     if (!expression || !expression.trim()) {
       setError('Por favor ingrese una función.');
       setPlotData([]);
@@ -63,9 +95,11 @@ function App() {
         if (childNode.isSymbolNode && !childNode.isPointer) {
           const nativeFunctions = [
             'sin', 'cos', 'tan', 'log', 'exp', 'sqrt', 'add', 'sub', 'mul', 'div',
-            'Sin', 'Cos', 'Tan', 'Log', 'Exp', 'Sqrt', 'Add', 'Sub', 'Mul', 'Div',
+            'Sin', 'Sen', 'sen', 'Cos', 'Tan', 'Log', 'Exp', 'Sqrt', 'Add', 'Sub', 'Mul', 'Div',
             'acos', 'csc', 'csch', 'norm', 'divide', 'Acos', 'Csc', 'Csch', 'Norm', 'Divide',
-            'tanh', 'sinh', 'cosh', 'Tanh', 'Sinh', 'Cosh'
+            'tanh', 'sinh', 'cosh', 'Tanh', 'Sinh', 'Cosh',
+            'sqr', 'Sqr', 'square', 'Square',
+            'min', 'max', 'MIN', 'MAX', 'minimum', 'Minimum', 'maximum', 'Maximum'
           ];
           if (!nativeFunctions.includes(childNode.name) && !symbols.includes(childNode.name)) {
             symbols.push(childNode.name);
@@ -73,6 +107,7 @@ function App() {
         }
       });
 
+      // Usamos las variables del formulario 
       const currentVars = varsToUse ? varsToUse : symbols.map(varName => {
         const existingVar = detectedVariables.find(v => v.name === varName);
         return existingVar ? existingVar : { 
@@ -80,15 +115,17 @@ function App() {
           isConstant: false, 
           min: '-10', 
           max: '10',
-          constantValue: '0' 
+          constantValue: '5' 
         };
       });
 
       const activeAxes = currentVars.filter(v => !v.isConstant);
       const constantFields = currentVars.filter(v => v.isConstant);
 
+      // Guardamos las variables validadas
       setDetectedVariables(currentVars);
 
+      // Validación de cantidad de variables
       if (activeAxes.length > 2 && !varsToUse) {
         setTempVariables(JSON.parse(JSON.stringify(currentVars)));
         setShowModalOptions(true);
@@ -100,6 +137,7 @@ function App() {
         baseScope[c.name] = c.constantValue === '' || c.constantValue === '-' ? 0 : Number(c.constantValue);
       });
 
+      // GENERACIÓN DE PUNTOS EN 2D (1 VARIABLE ACTIVA)
       if (activeAxes.length === 1) {
         const v1 = activeAxes[0];
         const rawMin = v1.min === '' || v1.min === '-' ? -10 : Number(v1.min);
@@ -116,7 +154,19 @@ function App() {
           const currentVal = minVal + (i * stepSize);
           xValues.push(currentVal);
           const scope = { ...baseScope, [v1.name]: currentVal };
-          yValues.push(compiled.evaluate(scope));
+          try {
+            const res = compiled.evaluate(scope);
+            yValues.push(res);
+          } catch (e) {
+            yValues.push(null);
+          }
+        }
+
+        const hasValidPoints = yValues.some(val => val !== null && !isNaN(val) && isFinite(val));
+        if (!hasValidPoints) {
+          setError('Aviso: La función no tiene valores reales dentro del rango configurado.');
+          setPlotData([]);
+          return;
         }
 
         setPlotData([
@@ -129,6 +179,7 @@ function App() {
           }
         ]);
 
+      // GENERACIÓN DE PUNTOS EN 3D (2 VARIABLES ACTIVAS)
       } else if (activeAxes.length === 2) {
         const v1 = activeAxes[0];
         const v2 = activeAxes[1];
@@ -137,6 +188,7 @@ function App() {
         const rawMaxX = v1.max === '' || v1.max === '-' ? 10 : Number(v1.max);
         const minX = Math.min(rawMinX, rawMaxX);
         const maxX = Math.max(rawMinX, rawMaxX);
+
         const rawMinY = v2.min === '' || v2.min === '-' ? -10 : Number(v2.min);
         const rawMaxY = v2.max === '' || v2.max === '-' ? 10 : Number(v2.max);
         const minY = Math.min(rawMinY, rawMaxY);
@@ -157,9 +209,21 @@ function App() {
           const row = [];
           for (let i = 0; i <= steps; i++) {
             const scope = { ...baseScope, [v1.name]: xValues[i], [v2.name]: yValues[j] };
-            row.push(compiled.evaluate(scope));
+            try {
+              const res = compiled.evaluate(scope);
+              row.push(res);
+            } catch (e) {
+              row.push(null);
+            }
           }
           zValues.push(row);
+        }
+
+        const hasValidPoints = zValues.some(row => row.some(val => val !== null && !isNaN(val) && isFinite(val)));
+        if (!hasValidPoints) {
+          setError('Aviso: La función no tiene valores reales dentro del rango configurado.');
+          setPlotData([]);
+          return;
         }
 
         setPlotData([
@@ -172,6 +236,7 @@ function App() {
             showscale: false
           }
         ]);
+
       } else {
         setPlotData([]);
       }
@@ -180,6 +245,7 @@ function App() {
       setError('La expresión escrita no puede ser leída.');
       setPlotData([]);
     }
+
     setRevision((prev) => prev + 1);
   };
 
@@ -272,7 +338,14 @@ function App() {
             </div>
             {error && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px', fontWeight: 'bold' }}>{error}</p>}
           </div>
-
+<details style={{ marginTop: '8px', fontSize: '12px', color: '#495057', background: '#eef2f7', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer' }}>
+  <summary style={{ fontWeight: 'bold', color: '#1B396A' }}>ℹ️ Sintaxis y funciones admitidas</summary>
+  <div style={{ marginTop: '6px', lineHeight: '1.4', fontSize: '11px' }}>
+    <strong>Operaciones Basicas:</strong> add/Add, sub/Sub, mul/Mul, div/Div/Divide, Sqr, sqrt, Norm, Exp, Log<br />
+    <strong>Trigonométricas:</strong> Sin, Cos, Tan, Asin, Acos, Atan, Csc, Csch, Sinh, Cosh, Tanh<br />
+    <strong>Extremos:</strong> Minimum, Maximum, min, max (ej. <code>add(x, Sqr(y))</code>)
+  </div>
+</details>
           <div>
             <h4 style={{ marginBottom: '10px' }}>Mapeo Dinámico de Variables</h4>
             {detectedVariables.length === 0 ? (
@@ -371,14 +444,16 @@ function App() {
                   height: graphLayout.height,
                   margin: graphLayout.margin,
                   datarevision: revision,
+                  xaxis: {title: detectedVariables.filter(v => !v.isConstant)[0]?.name || 'x'},
+                  yaxis: {title: detectedVariables.filter(v => !v.isConstant).length === 1? `f(${detectedVariables.filter(v => !v.isConstant)[0]?.name || 'x'})`: 'f'},
                   scene: {
-                    camera: graphLayout.scene?.camera, // 👈 1. PRESERVA LA CÁMARA MÓVIL EXACTA EN 3D
-                    xaxis: { title: detectedVariables.filter(v=>!v.isConstant)[0]?.name || 'Eje X' },
-                    yaxis: { title: detectedVariables.filter(v=>!v.isConstant)[1]?.name || 'Eje Y' },
-                    zaxis: { title: 'Función' }
+                  camera: graphLayout.scene?.camera,
+                  xaxis: {title: detectedVariables.filter(v => !v.isConstant)[0]?.name || 'Eje X' },
+                  yaxis: {title: detectedVariables.filter(v => !v.isConstant)[1]?.name || 'Eje Y' },
+                  zaxis: { title: detectedVariables.filter(v => !v.isConstant).length === 2? `f(${detectedVariables.filter(v => !v.isConstant)[0]?.name}, ${detectedVariables.filter(v => !v.isConstant)[1]?.name})`: 'f'}                    
                   }
-                }}
-                // 👈 2. GUARDA LA PERSPECTIVA ACTUAL CADA QUE SE MUEVE LA GRÁFICA
+                  }}
+                // GUARDA LA PERSPECTIVA ACTUAL CADA QUE SE MUEVE LA GRÁFICA
                 onRelayout={(eventData) => {
                   if (eventData['scene.camera']) {
                     setGraphLayout(prev => ({
