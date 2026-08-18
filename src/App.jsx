@@ -338,24 +338,94 @@ const handleProcessGraph = (varsToUse = null) => {
             </div>
             {error && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px', fontWeight: 'bold' }}>{error}</p>}
           </div>
-{/* ACORDEÓN DESPLEGABLE: GUÍA RÁPIDA Y CICLO DE VIDA DE LA PWA */}
-<details style={{ marginTop: '10px', fontSize: '12px', color: '#333', background: '#f1f4f9', padding: '10px 14px', borderRadius: '6px', border: '1px solid #d0dbe7', cursor: 'pointer' }}>
-  <summary style={{ fontWeight: 'bold', color: '#1B396A', outline: 'none' }}>
-    ℹ️ Guía rápida de sintaxis (Presione para desplegar)
+{/* ACORDEÓN DESPLEGABLE: TABLA DE FUNCIONES E IDENTIFICADORES */}
+<details style={{ marginTop: '10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dee2e6', padding: '8px 12px', cursor: 'pointer' }}>
+  <summary style={{ fontWeight: 'bold', color: '#1B396A', fontSize: '13px', outline: 'none' }}>
+    ℹ️ Guía Rápida funciones aceptadas (Presione para desplegar)
   </summary>
   
-  <div style={{ marginTop: '10px', fontSize: '11.5px', lineHeight: '1.5' }}>
-    <div style={{ marginBottom: '10px', paddingBottom: '8px', borderBottom: '1px solid #d0dbe7' }}>
-      <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#1B396A' }}>Catálogo de Funciones Aceptadas:</p>
-      • <strong>Aritméticas:</strong> <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>add</code>, <code>Add</code>, <code>sub</code>, <code>Sub</code>, <code>mul</code>, <code>Mul</code>, <code>div</code>, <code>Div</code>, <code>divide</code>, <code>Divide</code><br />
-      • <strong>Potencias, Raíces y Magnitudes:</strong> <code>^</code>, <code>sqrt</code>, <code>Sqrt</code>, <code>sqr</code>, <code>Sqr</code>, <code>square</code>, <code>Square</code>, <code>norm</code>, <code>Norm</code><br />
-      • <strong>Trigonométricas e Hiperbólicas:</strong> <code>Sin</code>, <code>Cos</code>, <code>Tan</code>, <code>Asin</code>, <code>Acos</code>, <code>Atan</code>, <code>Csc</code>, <code>csc</code>, <code>Csch</code>, <code>csch</code>, <code>Sinh</code>, <code>Cosh</code>, <code>Tanh</code><br />
-      • <strong>Extremos y Especiales:</strong> <code>Minimum</code>, <code>minimum</code>, <code>Maximum</code>, <code>maximum</code>, <code>min</code>, <code>max</code>, <code>MIN</code>, <code>MAX</code>, <code>Log</code>, <code>Exp</code>
-    </div>
-
-    <div style={{ overflowX: 'auto' }}>
-     
-    </div>
+  <div style={{ marginTop: '10px', overflowX: 'auto' }}>
+    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', fontFamily: 'Arial, sans-serif', textAlign: 'left' }}>
+      <thead>
+        <tr style={{ background: '#5B9BD5', color: '#ffffff' }}>
+          <th style={{ padding: '8px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Función / Identificadores</th>
+          <th style={{ padding: '8px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Implementación Lógica</th>
+          <th style={{ padding: '8px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Significado Matemático</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>add, Add</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; a + b</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Suma aritmética binaria</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sub, Sub</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; a - b</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Resta o sustracción aritmética</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>mul, Mul</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; a * b</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Multiplicación aritmética</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>div, Div, Divide</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; |b| &lt; 1e-12 ? null : a / b</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>División aritmética con omisión de división entre cero</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>norm, Norm</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; Math.abs(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cálculo del valor absoluto o magnitud</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sqrt, Sqrt</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; a &lt; 0 ? null : Math.sqrt(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Raíz cuadrada restringida a números no negativos</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sqr, Sqr, square, Square</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; a * a</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Potencia cuadrática</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>log, Log</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; a &lt;= 0 ? null : Math.log(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Logaritmo natural restringido a valores positivos</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>min, MIN, minimum, Minimum</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; Math.min(a, b)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación del valor extremo mínimo</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>max, MAX, maximum, Maximum</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; Math.max(a, b)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación del valor extremo máximo</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Sin, Cos, Tan</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>Math.sin(a), Math.cos(a), Math.tan(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Funciones trigonométricas directas</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Asin, Acos, Atan</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>Math.asin(a), Math.acos(a), Math.atan(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Funciones trigonométricas inversas con validación de dominio [-1, 1]</td>
+        </tr>
+        <tr style={{ background: '#f2f2f2' }}>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Csc, csc</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>1 / Math.sin(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante trigonométrica con control de indeterminación</td>
+        </tr>
+        <tr>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Csch, csch</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>1 / Math.sinh(a)</code></td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante hiperbólica con control de indeterminación</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </details>
           <div>
