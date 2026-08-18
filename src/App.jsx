@@ -338,12 +338,24 @@ const handleProcessGraph = (varsToUse = null) => {
             </div>
             {error && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px', fontWeight: 'bold' }}>{error}</p>}
           </div>
-<details style={{ marginTop: '8px', fontSize: '12px', color: '#495057', background: '#eef2f7', padding: '6px 10px', borderRadius: '4px', cursor: 'pointer' }}>
-  <summary style={{ fontWeight: 'bold', color: '#1B396A' }}>ℹ️ Sintaxis y funciones admitidas</summary>
-  <div style={{ marginTop: '6px', lineHeight: '1.4', fontSize: '11px' }}>
-    <strong>Operaciones Basicas:</strong> add/Add, sub/Sub, mul/Mul, div/Div/Divide, Sqr, sqrt, Norm, Exp, Log<br />
-    <strong>Trigonométricas:</strong> Sin, Cos, Tan, Asin, Acos, Atan, Csc, Csch, Sinh, Cosh, Tanh<br />
-    <strong>Extremos:</strong> Minimum, Maximum, min, max (ej. <code>add(x, Sqr(y))</code>)
+{/* ACORDEÓN DESPLEGABLE: GUÍA RÁPIDA Y CICLO DE VIDA DE LA PWA */}
+<details style={{ marginTop: '10px', fontSize: '12px', color: '#333', background: '#f1f4f9', padding: '10px 14px', borderRadius: '6px', border: '1px solid #d0dbe7', cursor: 'pointer' }}>
+  <summary style={{ fontWeight: 'bold', color: '#1B396A', outline: 'none' }}>
+    ℹ️ Guía rápida de sintaxis (Presione para desplegar)
+  </summary>
+  
+  <div style={{ marginTop: '10px', fontSize: '11.5px', lineHeight: '1.5' }}>
+    <div style={{ marginBottom: '10px', paddingBottom: '8px', borderBottom: '1px solid #d0dbe7' }}>
+      <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#1B396A' }}>Catálogo de Funciones Aceptadas:</p>
+      • <strong>Aritméticas:</strong> <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>add</code>, <code>Add</code>, <code>sub</code>, <code>Sub</code>, <code>mul</code>, <code>Mul</code>, <code>div</code>, <code>Div</code>, <code>divide</code>, <code>Divide</code><br />
+      • <strong>Potencias, Raíces y Magnitudes:</strong> <code>^</code>, <code>sqrt</code>, <code>Sqrt</code>, <code>sqr</code>, <code>Sqr</code>, <code>square</code>, <code>Square</code>, <code>norm</code>, <code>Norm</code><br />
+      • <strong>Trigonométricas e Hiperbólicas:</strong> <code>Sin</code>, <code>Cos</code>, <code>Tan</code>, <code>Asin</code>, <code>Acos</code>, <code>Atan</code>, <code>Csc</code>, <code>csc</code>, <code>Csch</code>, <code>csch</code>, <code>Sinh</code>, <code>Cosh</code>, <code>Tanh</code><br />
+      • <strong>Extremos y Especiales:</strong> <code>Minimum</code>, <code>minimum</code>, <code>Maximum</code>, <code>maximum</code>, <code>min</code>, <code>max</code>, <code>MIN</code>, <code>MAX</code>, <code>Log</code>, <code>Exp</code>
+    </div>
+
+    <div style={{ overflowX: 'auto' }}>
+     
+    </div>
   </div>
 </details>
           <div>
