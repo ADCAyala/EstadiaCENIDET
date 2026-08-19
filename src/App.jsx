@@ -26,8 +26,8 @@ function App() {
   // Copia de trabajo temporal para el formulario emergente
   const [tempVariables, setTempVariables] = useState([]);
 
-  // Estado densidad del enmallado 3D (por defecto 30X30)
-  const [gridResolution, setGridResolution] = useState(30);
+  // Estado densidad del enmallado 3D (por defecto 50x5)
+  const [gridResolution, setGridResolution] = useState(50);
 
   // Diccionario de funciones
    const cenidetMathScope = {
@@ -201,7 +201,7 @@ const handleProcessGraph = (varsToUse = null) => {
         const yValues = [];
         const zValues = [];
         
-        const steps = Number(gridResolution) || 30;
+        const steps = Number(gridResolution) || 50;
         const stepX = (maxX - minX) / steps;
         const stepY = (maxY - minY) / steps;
 
@@ -341,6 +341,7 @@ const handleProcessGraph = (varsToUse = null) => {
             </div>
             {error && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '5px', fontWeight: 'bold' }}>{error}</p>}
           </div>
+
 {/* ACORDEÓN DESPLEGABLE: TABLA DE FUNCIONES E IDENTIFICADORES */}
 <details style={{ marginTop: '10px', background: '#ffffff', borderRadius: '6px', border: '1px solid #dee2e6', padding: '8px 12px', cursor: 'pointer' }}>
   <summary style={{ fontWeight: 'bold', color: '#1B396A', fontSize: '13px', outline: 'none' }}>
@@ -360,12 +361,12 @@ const handleProcessGraph = (varsToUse = null) => {
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>add, Add</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; a + b</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Suma aritmética binaria</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Suma aritmética</td>
         </tr>
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sub, Sub</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; a - b</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Resta o sustracción aritmética</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Resta o sustracción</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>mul, Mul</td>
@@ -375,17 +376,17 @@ const handleProcessGraph = (varsToUse = null) => {
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>div, Div, Divide</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; |b| &lt; 1e-12 ? null : a / b</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>División aritmética con omisión de división entre cero</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>División aritmética</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>norm, Norm</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; Math.abs(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cálculo del valor absoluto o magnitud</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Valor absoluto</td>
         </tr>
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sqrt, Sqrt</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; a &lt; 0 ? null : Math.sqrt(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Raíz cuadrada restringida a números no negativos</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Raíz cuadrada</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>sqr, Sqr, square, Square</td>
@@ -395,17 +396,17 @@ const handleProcessGraph = (varsToUse = null) => {
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>log, Log</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a) =&gt; a &lt;= 0 ? null : Math.log(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Logaritmo natural restringido a valores positivos</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Logaritmo natural</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>min, MIN, minimum, Minimum</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; Math.min(a, b)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación del valor extremo mínimo</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación de valor mínimo</td>
         </tr>
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>max, MAX, maximum, Maximum</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>(a, b) =&gt; Math.max(a, b)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación del valor extremo máximo</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Determinación de valor máximo</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Sin, Cos, Tan</td>
@@ -415,17 +416,17 @@ const handleProcessGraph = (varsToUse = null) => {
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Asin, Acos, Atan</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>Math.asin(a), Math.acos(a), Math.atan(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Funciones trigonométricas inversas con validación de dominio [-1, 1]</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Funciones trigonométricas inversas</td>
         </tr>
         <tr style={{ background: '#f2f2f2' }}>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Csc, csc</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>1 / Math.sin(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante trigonométrica con control de indeterminación</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante trigonométrica</td>
         </tr>
         <tr>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9', fontWeight: 'bold' }}>Csch, csch</td>
           <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}><code>1 / Math.sinh(a)</code></td>
-          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante hiperbólica con control de indeterminación</td>
+          <td style={{ padding: '6px 10px', border: '1px solid #d9d9d9' }}>Cosecante hiperbólica</td>
         </tr>
       </tbody>
     </table>
@@ -448,11 +449,12 @@ const handleProcessGraph = (varsToUse = null) => {
       <option value={50}>50 × 50 (Equilibrado)</option>
       <option value={75}>75 × 75 (Alta definición)</option>
       <option value={100}>100 × 100 (Ultra detalle)</option>
+      <option value={150}>150 × 150 (Máximo detalle)</option>
     </select>
   </div>
   
   <p style={{ margin: 0, fontSize: '11px', color: '#6c757d' }}>
-    💡 <strong>Recomendación:</strong> Use <em>30×30</em> o <em>50×50</em> en dispositivos móviles para máxima fluidez táctil; reserve <em>75×75</em> y <em>100×100</em> para equipos de escritorio.
+     <strong>AVISO: </strong> La densidad por encima de <em>50x50</em> puede afectar el rendimiento del renderizado 3D en algunos dispositivos moviles.
   </p>
 </div>
 
