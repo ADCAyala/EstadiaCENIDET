@@ -26,6 +26,9 @@ function App() {
   // Copia de trabajo temporal para el formulario emergente
   const [tempVariables, setTempVariables] = useState([]);
 
+  // Estado densidad del enmallado 3D (por defecto 30X30)
+  const [gridResolution, setGridResolution] = useState(30);
+
   // Diccionario de funciones
    const cenidetMathScope = {
     // Funciones básicas
@@ -198,7 +201,7 @@ const handleProcessGraph = (varsToUse = null) => {
         const yValues = [];
         const zValues = [];
         
-        const steps = 30;
+        const steps = Number(gridResolution) || 30;
         const stepX = (maxX - minX) / steps;
         const stepY = (maxY - minY) / steps;
 
@@ -428,6 +431,31 @@ const handleProcessGraph = (varsToUse = null) => {
     </table>
   </div>
 </details>
+
+
+{/* SELECTOR DE ENMALLADO 3D CON RECOMENDACIÓN */}
+<div style={{ background: '#fff', padding: '12px', borderRadius: '6px', border: '1px solid #dee2e6', marginBottom: '15px' }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+    <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#1B396A' }}>
+      Densidad de Enmallado (3D):
+    </label>
+    <select 
+      value={gridResolution} 
+      onChange={(e) => setGridResolution(Number(e.target.value))}
+      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ced4da', fontSize: '12px', fontWeight: 'bold', color: '#1B396A', cursor: 'pointer' }}
+    >
+      <option value={30}>30 × 30 (Rápido)</option>
+      <option value={50}>50 × 50 (Equilibrado)</option>
+      <option value={75}>75 × 75 (Alta definición)</option>
+      <option value={100}>100 × 100 (Ultra detalle)</option>
+    </select>
+  </div>
+  
+  <p style={{ margin: 0, fontSize: '11px', color: '#6c757d' }}>
+    💡 <strong>Recomendación:</strong> Use <em>30×30</em> o <em>50×50</em> en dispositivos móviles para máxima fluidez táctil; reserve <em>75×75</em> y <em>100×100</em> para equipos de escritorio.
+  </p>
+</div>
+
           <div>
             <h4 style={{ marginBottom: '10px' }}>Mapeo Dinámico de Variables</h4>
             {detectedVariables.length === 0 ? (
